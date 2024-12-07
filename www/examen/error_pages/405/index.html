@@ -1,0 +1,79 @@
+<!-- Start Generation Here -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>405 - Method Not Allowed</title>
+  <link href="https://fonts.googleapis.com/css?family=Merriweather" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #ff7e5f, #feb47b);
+      color: #fff;
+      font-family: "Merriweather", serif;
+      text-align: center;
+      padding: 5em 0;
+    }
+    h1 {
+      font-size: 10em;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    p {
+      font-size: 2em;
+      margin: 0.5em 0;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2em;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+    }
+    a {
+      color: #ffeb3b;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .image {
+      margin: 2em 0;
+    }
+    .image img {
+      max-width: 100%;
+      height: auto;
+    }
+    .error-animation {
+      animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0% { transform: translate(1px, 0); }
+      25% { transform: translate(-1px, 0); }
+      50% { transform: translate(1px, 0); }
+      75% { transform: translate(-1px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="error-animation">405</h1>
+    <p>¡Method Not Allowed!</p>
+    <p>Sorry, the method you tried to use is not allowed on this server.</p>
+    <div class="image">
+      <img src="https://dinahosting.com/blog/upload/2024/02/ERROR-405-METHOD-NOT-ALLOWED.jpg" alt="Error 405">
+    </div>
+    <p><a href="/">Go back</a></p>
+  </div>
+  <script>
+    // Efecto de parpadeo en el título
+    const title = document.querySelector('h1');
+    setInterval(() => {
+      title.style.opacity = title.style.opacity === '0' ? '1' : '0';
+    }, 500);
+  </script>
+</body>
+</html>
+<!-- End Generation Here -->

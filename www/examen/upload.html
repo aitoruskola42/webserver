@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>42 Webserver demostration page</title>
+    <!-- Bulma Version 1-->
+    <link rel="stylesheet" href="https://unpkg.com/bulma@1.0.2/css/bulma.min.css" />
+    <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js"></script>
+	<style>
+
+        footer { position: fixed; left: 0; bottom: 0; width: 100%; background-color: #333; color: #fff; text-align: center; font-size: 14px; padding: 10px 0; }
+ .small-text { font-size: 0.8em; }
+        .icon-column { width: 40px; text-align: center; }
+        .icon-column i { font-size: 24px; }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar is-dark">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="https://www.42urduliz.com/">
+                <img src="/images/logo.png" alt="42 " width="112" height="28">
+            </a>
+            <div class="navbar-burger burger" data-target="navbarExampleTransparentExample">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div id="navbarExampleTransparentExample" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/">
+                    Home
+                </a>
+                <a class="navbar-item" href="/files">
+                    Directory list
+                </a>
+                <a class="navbar-item" href="/upload.html">
+                    Upload 
+                </a>
+                
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link" href="/cgi-bin/">
+                        CGI Demostrations
+                    </a>
+                    <div class="navbar-dropdown is-boxed">
+                        <a class="navbar-item" href="/cgi-bin/Python/miCalculadora.html">
+                            Calculator
+                        </a>
+                        <a class="navbar-item" href="/cgi-bin/Perl/passwordGenerator.pl">
+                            Password Generator
+                        </a>
+                        <a class="navbar-item" href="/cgi-bin/Python/contador.py">
+                            Visotors Counter
+                        </a>
+                    </div>
+                </div>
+				<div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link" >
+                        Redirections
+                    </a>
+                    <div class="navbar-dropdown is-boxed">
+                        <a class="navbar-item" href="/buscador" >
+                            Redirect 301
+                        </a>
+                        <a class="navbar-item" href="/buscador2" >
+                            Redirect 302
+                        </a>
+                        <a class="navbar-item" href="/buscador3" >
+                            Redirect 303
+                        </a>
+						<a class="navbar-item" href="/buscador4" >
+                            Redirect 307
+                        </a>
+                    </div>
+                </div>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link" >
+                        Http Codes
+                    </a>
+                    <div class="navbar-dropdown is-boxed">
+                        <a class="navbar-item" href="/files/nadaque encontrar.txt" >
+                            404 Not Found
+                        </a>
+                        <a class="navbar-item" href="/files/sinpermisos.jpg" >
+                            403 Forbidden
+                        </a>
+                        <a class="navbar-item" href="/cgi-bin/Python/timeOut.py" >
+                            408 Request Timeout
+                        </a>
+                        <a class="navbar-item" href="/notallowed" >
+                            405 Method not allowed
+                        </a>
+                        <a class="navbar-item" href="/1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" >
+                            414 URI Too Long
+                        </a>
+                       
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+			<a class="navbar-item" href="http://localhost:8081">
+				Server 2
+			</a>
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="field">
+                        <div class="control">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1 class="title has-text-centered">Carga de ficheros</h1>
+        <div class="card">
+            <div class="card-content">
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <div class="field">
+                        <label class="label" for="fileToUpload">Selecciona un archivo</label>
+                        <div class="control">
+                            <input class="input" type="file" name="fileToUpload" id="fileToUpload" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="button is-primary" type="submit" value="Upload file" name="submit">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+
+ 
+
+	<footer>
+		<p style="margin: 0;">Powered by AJXWebserver &copy; 2024</p>
+		<p style="margin: 5px 0;">
+		</p>
+		  <p style="font-size: 12px; margin: 5px 0 0 0;">Built with <span style="color: #e25555; font-size: 16px; display: inline-block; transform: scale(1.5, 1.3); margin: 0 3px;">&hearts;</span> by auskola- / javigarc / xamayuel</p>
+	</footer>
+	<script>
+		(function() {
+			var burger = document.querySelector('.burger');
+			var menu = document.querySelector('#'+burger.dataset.target);
+			burger.addEventListener('click', function() {
+				burger.classList.toggle('is-active');
+				menu.classList.toggle('is-active');
+			});
+		})();
+		</script>
+</body>
+
+</html>

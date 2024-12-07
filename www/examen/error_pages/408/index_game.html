@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>408 Request Timeout - Physics Game 🎮</title>
+  <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f6f6f6 0%, #d1d1d1 100%);
+      color: black;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      font-family: "VT323", monospace;
+      font-size: 22px;
+    }
+    body p {
+      margin: 0;
+      line-height: 1;
+    }
+    body p:first-of-type {
+      margin-top: 20px;
+    }
+    body input {
+      font-family: "VT323", monospace;
+      font-size: 50px;
+      border: none;
+      background: none;
+      width: 100px;
+    }
+    body canvas {
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      position: absolute;
+      cursor: pointer;
+    }
+    body #info {
+      position: absolute;
+      top: 7vh;
+      left: 5vw;
+    }
+    body .range-slider {
+      margin: 60px 0 0 0%;
+      position: absolute;
+      top: 50%;
+      width: 30%;
+      transform: translateY(-50%);
+      right: 5%;
+      text-align: right;
+    }
+    body .range-slider__range {
+      -webkit-appearance: none;
+      width: calc(100% - (73px));
+      height: 10px;
+      border-radius: 5px;
+      background: #ccc;
+      outline: none;
+      padding: 0;
+      margin: 0;
+    }
+    body .range-slider__range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #000;
+      cursor: pointer;
+      transition: background 0.15s ease-in-out;
+    }
+    body .range-slider__range::-webkit-slider-thumb:hover {
+      background: #4a08a0;
+    }
+    body h1 {
+      font-weight: 400;
+      margin: 0;
+      line-height: 1;
+    }
+    body #gui {
+      position: absolute;
+      top: 15%;
+      right: 5%;
+      z-index: 999;
+      text-align: right;
+      font-size: 24px;
+    }
+    body #timeout {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -55%) scale3d(1, 1, 1) rotate(-10deg);
+      transition: all 1s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+      z-index: 999;
+      font-size: 10vw;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 0px 35px;
+      line-height: 1;
+    }
+    body #timeout.shown {
+      opacity: 1;
+      transform: translate(-50%, -55%) scale3d(1.3, 1.3, 1) rotate(-1deg);
+    }
+    body button {
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      box-shadow: 10px 10px 0 black;
+      font-family: "VT323", monospace;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-size: 30px;
+      background-color: #4a08a0;
+      transition: all cubic-bezier(0.19, 1, 0.22, 1) 0.3s;
+      color: #fff;
+    }
+    body button:hover, body button:focus {
+      background-color: #34066f;
+    }
+    @media screen and (max-width: 990px) {
+      body {
+        font-size: 12px;
+      }
+      body #info {
+        bottom: 25px;
+        left: 25px;
+        top: 20px;
+      }
+      body #gui {
+        top: 20px;
+      }
+      body h1 small {
+        display: none;
+      }
+      body p:first-of-type {
+        margin-top: 0;
+      }
+      body .range-slider {
+        bottom: 45px;
+        top: initial;
+        width: 100%;
+        right: 35px;
+        transform: translateY(0);
+      }
+      body #timeout {
+        padding: 0px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="canvas_container"></div>
+  <div id="info">
+    <h1>408 Request Timeout <br><small>- The Game</small></h1>
+    <p>Use the handle to rotate the hourglass. </p>
+    <p>Watch out! It is broken. </p>
+    <p>Don't let the pixe... sand get out.</p>
+    <p>Remember - You have limited time.</p>
+    <button @click="restartGame()" v-if="gameOver">Restart</button>
+  </div>
+  <div id="gui">Time limit:<br><span>{{ timeLimit }}s</span></div>
+  <div class="range-slider">
+    <p>Controler:</p>
+    <input class="range-slider__range" v-model="currAngle" type="range" min="-25" max="25"/>
+  </div>
+  <div id="timeout" :class="gameOver ? 'shown' : ''">{{message}}</div>
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.12.0/matter.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.min.js'></script>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      currAngle: 0,
+      myp5: null,
+      allowRotate: true,
+      gameOver: false,
+      inGame: false,
+      timeLimit: 11,
+      timer: null,
+      sandColor: '#4a08a0',
+      boundsColor: '#BBBBBB',
+      message: 'TIME OUT!',
+      points: 0,
+      hScale: window.innerHeight / 800
+    },
+    watch: {
+      points(val) {
+        if (val >= 110 && !this.gameOver) {
+          this.gameOver = true;
+          this.message = 'YOU WIN!';
+          clearInterval(this.timer);
+        }
+      },
+      currAngle(val) {
+        if (val !== 0) {
+          if (!this.inGame) {
+            this.inGame = true;
+            this.timer = setInterval(() => {
+              this.timeLimit -= 1;
+            }, 1000);
+          }
+        }
+      },
+      timeLimit(val) {
+        if (val <= 0) {
+          clearInterval(this.timer);
+          this.gameOver = true;
+          this.message = 'TIME OUT!';
+        }
+      }
+    },
+    methods: {
+      restartGame() {
+        window.location.reload(true);
+      },
+      initGame() {
+        let bod = document.getElementsByTagName('body')[0];
+        bod.addEventListener('click', function () {
+          _this.allowRotate = true;
+        });
+        let _this = this;
+
+        function sketchInit(sketch) {
+          let engine;
+          let world;
+          let stack;
+          let sand = [];
+          let pixels = [];
+          let pixels2 = [];
+          const SAND_COUNT = 110;
+          const SAND_SIZE = 12;
+          const PIXEL_SIZE = 20;
+          const Engine = Matter.Engine;
+          const Render = Matter.Render;
+          const World = Matter.World;
+          const Bodies = Matter.Bodies;
+          const Composite = Matter.Composite;
+          const Events = Matter.Events;
+          const LEFT_SIDE = [{ x: -40, y: -20 }, { x: -40, y: 0 }, { x: -60, y: 0 }, { x: -60, y: -40 }, { x: -60, y: 20 }, { x: -80, y: 20 }, { x: -80, y: 40 }, { x: -80, y: -40 }, { x: -80, y: -60 }, { x: -100, y: -80 }, { x: -100, y: -60 }, { x: -100, y: 60 }, { x: -100, y: 40 }, { x: -120, y: -100 }, { x: -120, y: 60 }, { x: -120, y: 80 }, { x: -120, y: 100 }, { x: -120, y: 120 }, { x: -120, y: 140 }, { x: -120, y: 160 }, { x: -120, y: -120 }, { x: -120, y: -140 }, { x: -120, y: -160 }, { x: -120, y: -180 }, { x: -140, y: 200 }, { x: -140, y: -220 }];
+          const RIGHT_SIDE = [{ x: 20, y: 0 }, { x: 40, y: 0 }, { x: 20, y: -20 }, { x: 40, y: -20 }, { x: 60, y: 40 }, { x: 40, y: 20 }, { x: 60, y: 20 }, { x: 80, y: 40 }, { x: 100, y: 80 }, { x: 100, y: 100 }, { x: 100, y: 120 }, { x: 100, y: 140 }, { x: 100, y: 160 }, { x: 100, y: -80 }, { x: 100, y: -100 }, { x: 80, y: -60 }, { x: 60, y: -60 }, { x: 60, y: -40 }, { x: 40, y: -40 }, { x: 100, y: -120 }, { x: 100, y: -140 }, { x: 100, y: -160 }, { x: 100, y: -180 }, { x: 80, y: -80 }, { x: 120, y: 200 }, { x: 120, y: -220 }];
+
+          sketch.setup = function () {
+            sketch.createCanvas(window.innerWidth, window.innerHeight);
+            sketch.frameRate(30);
+            engine = Engine.create();
+            world = engine.world;
+            var render = Render.create({
+              element: document.getElementById('canvas_container'),
+              engine: engine,
+              options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                wireframes: false,
+                background: 'transparent'
+              }
+            });
+
+            Render.run(render);
+
+            World.add(world, [
+              Bodies.rectangle(window.innerWidth / 2, 0, window.innerWidth, 50, { isStatic: true, render: { fillStyle: _this.boundsColor } }),
+              Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 50, { isStatic: true, id: 999, render: { fillStyle: _this.boundsColor } }),
+              Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true, render: { fillStyle: _this.boundsColor } }),
+              Bodies.rectangle(0, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true, render: { fillStyle: _this.boundsColor } })
+            ]);
+
+            stack = Composite.create();
+
+            new Edge(-110, -200, 280, PIXEL_SIZE);
+            new Edge(-110, -240, 280, PIXEL_SIZE);
+            new Edge(-110, 180, 280, PIXEL_SIZE);
+            new Edge(-110, 220, 280, PIXEL_SIZE);
+            let strongFloor = Bodies.rectangle(-10, 195, 270, 50, { isStatic: true, density: 100, render: { fillStyle: 'transparent' } });
+            let strongWall = Bodies.rectangle(-120, 135, 20, 170, { isStatic: true, density: 100, render: { fillStyle: 'transparent' } });
+            let strongWall2 = Bodies.rectangle(100, 150, 20, 160, { isStatic: true, density: 100, render: { fillStyle: 'transparent' } });
+            let sensor = Bodies.rectangle(-10, -150, 200, 100, { label: 'sensor', isStatic: true, isSensor: true, render: { fillStyle: 'transparent' } });
+            let sensor2 = Bodies.rectangle(-10, 110, 200, 200, { label: 'sensor', isStatic: true, isSensor: true, render: { fillStyle: 'transparent' } });
+
+            World.add(world, [sensor, sensor2, strongWall, strongWall2, strongFloor]);
+            Composite.add(stack, [sensor, sensor2, strongWall, strongWall2, strongFloor]);
+            for (let x = 0; x < SAND_COUNT; x++) {
+              sand.push(new Sand(sketch.random(-10, 8) * 10, sketch.random(6, 17) * 10));
+            }
+            for (let x = 0; x < LEFT_SIDE.length; x++) {
+              pixels.push(new HourglassPixel(LEFT_SIDE[x].x, LEFT_SIDE[x].y));
+              pixels2.push(new HourglassPixel(RIGHT_SIDE[x].x, RIGHT_SIDE[x].y));
+            }
+            Composite.translate(stack, { x: window.innerWidth / 2, y: window.innerHeight / 2 }, true);
+            Composite.scale(stack, _this.hScale, _this.hScale, { x: window.innerWidth / 2, y: window.innerHeight / 2 }, true);
+
+            Events.on(engine, 'collisionStart', function (event) {
+              const pairs = event.pairs;
+              for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i];
+                if (pair.bodyA.label === "sand" && pair.bodyB.id == 999) {
+                  pair.bodyA.render.fillStyle = '#FF0000';
+                  pair.bodyB.render.fillStyle = '#FF0000';
+                  if (!_this.gameOver) {
+                    _this.gameOver = true;
+                    _this.message = 'Game Over';
+                    clearInterval(_this.timer);
+                  }
+                }
+              }
+            });
+
+            Events.on(engine, 'collisionEnd', function (event) {
+              var pairs = event.pairs;
+              for (var i = 0, j = pairs.length; i != j; ++i) {
+                var pair = pairs[i];
+                if (pair.bodyA.label == "sensor") {
+                  _this.points++;
+                  pair.bodyB.render.fillStyle = _this.sandColor;
+                }
+              }
+            });
+
+            Engine.run(engine);
+          };
+
+          sketch.draw = function () {
+            sketch.clear();
+            if (!_this.gameOver) {
+              Composite.rotate(stack, _this.currAngle * 0.001, { x: window.innerWidth / 2, y: window.innerHeight / 2 }, true);
+            }
+          };
+
+          class Sand {
+            constructor(x, y) {
+              this.body = Bodies.rectangle(x, y, SAND_SIZE, SAND_SIZE, {
+                restitution: 0,
+                friction: .1,
+                density: .000001,
+                label: 'sand',
+                render: { fillStyle: _this.sandColor }
+              });
+              World.add(world, this.body);
+              Composite.add(stack, this.body);
+            }
+          }
+
+          class Edge {
+            constructor(x, y, w, h) {
+              this.body = Bodies.rectangle(x + 100, y, w, h, {
+                isStatic: true,
+                restitution: 0,
+                friction: 1,
+                density: 10,
+                render: { fillStyle: '#000000' }
+              });
+              this.w = w;
+              this.h = h;
+              World.add(world, this.body);
+              Composite.add(stack, this.body);
+            }
+          }
+
+          class HourglassPixel {
+            constructor(x, y) {
+              this.pixel = Bodies.rectangle(x, y, PIXEL_SIZE, PIXEL_SIZE, {
+                friction: .2,
+                restitution: 0,
+                isStatic: true,
+                density: 10,
+                render: { fillStyle: '#000000' }
+              });
+              World.add(world, this.pixel);
+              Composite.add(stack, this.pixel);
+            }
+          }
+        }
+        let canv = sketch => {
+          sketchInit(sketch);
+        };
+        this.myp5 = new p5(canv, 'canvas_container');
+      }
+    },
+    mounted() {
+      this.initGame();
+    }
+  });
+</script>
+</body>
+</html>
